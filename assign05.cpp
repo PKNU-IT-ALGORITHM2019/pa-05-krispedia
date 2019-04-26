@@ -10,12 +10,14 @@ template <typename T>
 class Node{
 public:
     T data;
+    T meaning;
     Node* left;
     Node* right;
     Node* parent;
 
-    Node(T data = NULL, Node* left = NULL, Node* right = NULL, Node* parent = NULL){
+    Node(T data = NULL, T meaning = NULL, Node* left = NULL, Node* right = NULL, Node* parent = NULL){
         this->data = data;
+        this->meaning = meaning;
         this->left = left;
         this->right = right;
         this->parent = parent;
@@ -24,7 +26,6 @@ public:
 
 vector<string> words;
 vector<string> meanings;
-map<string, string> dict;
 
 Node<string>* root;
 
@@ -92,7 +93,6 @@ void readInput(string filename) {
 
         words.push_back(word);
         meanings.push_back(meaning);
-        dict[word] = meaning;
     }
     fin.close();
 }
@@ -121,11 +121,12 @@ void insertNode(Node<string>* newNode, Node<string>* checkParent, Node<string>* 
 void buildTree(){
     for(int i=0; i<words.size(); i++){
         cout<<"build start"<<endl;
-        Node<string>* newNode = new Node<string>(words[i]);
+        Node<string>* newNode = new Node<string>(words[i], meanings[i]);
         insertNode(newNode, NULL, root, -1);
     }
 
     cout<<"root data: "<<root->data<<endl;
+    cout<<"root meaning: "<<root->meaning<<endl;
     cout<<"root left: "<<root->left->data<<endl;
     cout<<"root right: "<<root->right->data<<endl;
 }
@@ -135,8 +136,7 @@ void addNewData() {
     cin>>newWord;
     cout<<"class: ";
     cin>>newClass;
-    cout<<"meaning: ";
-    cin>>inMeaning;
+    cout<<"meaning: "<<endl;
     getline(cin, newMeaning);
     cout<<"newMeaning: "<<newMeaning<<endl;
 
@@ -144,17 +144,25 @@ void addNewData() {
         newWord[i] = tolower(newWord[i]);
     words.push_back(newWord);
     meanings.push_back(newMeaning);
-    dict[newWord] = newMeaning;
 
-    Node<string>* newNode = new Node<string>(newWord);
+    Node<string>* newNode = new Node<string>(newWord, newMeaning);
     insertNode(newNode, NULL, root, -1);
 }
 void find(string argument){
+    Node<string>* target = findNode(root, argument);
+
+    if(target != NULL)
+        cout<<target->meaning<<endl;
+    else
+        cout<<"Not found in Dictionary"<<endl;
+      
+
+/*
     if(dict[argument] != "")
         cout<<dict[argument]<<endl;
     else
         cout<<"Not found in Dictionary"<<endl;
-
+*/
 }
 void deleteSingle(string argument){
     for(int i=0; i<argument.size(); i++)
@@ -162,7 +170,6 @@ void deleteSingle(string argument){
     Node<string>* targetNode = findNode(root, argument);
     if(targetNode != NULL){
         deleteData(targetNode);
-        dict.erase(argument);
         cout<<"Deleted successfully."<<endl;
     }
     else
